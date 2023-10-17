@@ -18,7 +18,7 @@ Certifique-se de ter o Node.js instalado. Você pode baixá-lo em [nodejs.org](h
 git clone https://github.com/JonatasMSantos/nestjs-grpc-starter.git
 ```
 
-## Subir o mongodb
+## Subir o mongodb (Docker)
 
 ```bash
 docker compose up
