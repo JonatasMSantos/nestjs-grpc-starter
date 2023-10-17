@@ -1,25 +1,57 @@
-import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller, UseGuards } from '@nestjs/common';
+import { GrpcMethod, Payload } from '@nestjs/microservices';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrdersService } from './orders.service';
+import { AuthGuard } from '../auth/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller()
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  @MessagePattern('createOrder')
-  create(@Payload() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+  @GrpcMethod('OrderService')
+  async createOrder(@Payload() createOrderDto: CreateOrderDto) {
+    const order = await this.ordersService.create(createOrderDto);
+    return {
+      order: {
+        order_id: order.id.toString(),
+        account_id: order.account_id,
+        asset_id: order.asset_id,
+        quantity: order.quantity,
+        status: order.status,
+      },
+    };
   }
 
-  @MessagePattern('findAllOrders')
-  findAll(@Payload() account_id: string) {
-    return this.ordersService.findAll(account_id);
+  @GrpcMethod('OrderService')
+  async findAllOrders(@Payload() findAllOrdersDTO: { account_id: string }) {
+    const orders = await this.ordersService.findAll(
+      findAllOrdersDTO.account_id,
+    );
+    return {
+      orders: orders.map((o) => ({
+        order_id: o.id.toString(),
+        account_id: o.account_id,
+        asset_id: o.asset_id,
+        quantity: o.quantity,
+        status: o.status,
+      })),
+    };
   }
 
-  @MessagePattern('findOneOrder')
-  findOne(@Payload() id: string) {
-    return this.ordersService.findOne(id);
+  @GrpcMethod('OrderService')
+  async findOneOrder(@Payload() findOneOrderDTO: { order_id: string }) {
+    const order = await this.ordersService.findOne(findOneOrderDTO.order_id);
+    console.log(order);
+    return {
+      order: {
+        order_id: order.id.toString(),
+        account_id: order.account_id,
+        asset_id: order.asset_id,
+        quantity: order.quantity,
+        status: order.status,
+      },
+    };
   }
 
   /*

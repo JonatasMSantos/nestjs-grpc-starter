@@ -22,9 +22,7 @@ export class OrdersService {
   }
 
   findOne(id: string) {
-    return this.orderModel.findById({
-      id,
-    });
+    return this.orderModel.findById(id);
   }
 
   /*
